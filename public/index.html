@@ -1,117 +1,88 @@
 <!doctype html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Title</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="http://static.geetest.com/v4/gt4.js"></script>
     <script src="https://apps.bdimg.com/libs/jquery/1.9.1/jquery.js"></script>
-    <style>body {
-        margin: 50px 0;
-        font-family: "PingFangSC-Regular", "Open Sans", Arial, "Hiragino Sans GB", "Microsoft YaHei", "STHeiti", "WenQuanYi Micro Hei", SimSun, sans-serif;
-        text-align: center;
-    }
-
-    .inp {
-        width: 278px;
-        height: 40px;
-        padding: 0 10px;
-        border: 1px solid #ccc;
-        border-radius: 2px;
-        font-size: 18px;
-    }
-
-    .btn {
-        display: inline-block;
-        width: 100px;
-        height: 40px;
-        box-sizing: border-box;
-        border: 1px solid #ccc;
-        background: white linear-gradient(180deg, #fff 0%, #f3f3f3 100%);
-        border-radius: 2px;
-        color: #666;
-        cursor: pointer;
-        font-size: 16px;
-        line-height: 40px;
-    }
-
-    .btn:hover {
-        background: white linear-gradient(0deg, #fff 0%, #f3f3f3 100%);
-    }
-
-    #captcha {
-        display: inline-block;
-        width: 300px;
-        height: 50px;
-    }
-
-    label {
-        display: inline-block;
-        width: 80px;
-        text-align: right;
-        vertical-align: top;
-    }
-
-    #wait {
-        margin: 0;
-        color: #666;
-        text-align: left;
-    }</style>
 </head>
-<body><h1>demo</h1>
 
-<form id="form">
-    <div><label for="username">用户名：</label> <input class="inp" id="username" value="用户名"></div>
-    <br>
-    <div><label for="password">密码：</label> <input class="inp" id="password" type="password" value="123456"></div>
-    <br>
-    <div><label for="btn">插件：</label>
+<body>
+    <h1>demo</h1>
+    <div class="container">
         <div id="captcha">
-            <div id="btn" class="btn">提交</div>
         </div>
-        <br></div>
-    <br>
-    <div id="reset">
-        <button id="reset_btn" class="btn">重置</button>
+        <button id="game1" type="button" class="btn btn-primary">Attack Game 1</button>
+        <button id="game2" type="button" class="btn btn-primary">Attack Game 2</button>
+        <button id="game3" type="button" class="btn btn-primary">Attack Game 3</button>
+        <button id="game4" type="button" class="btn btn-primary">Attack Game 4</button>
+        <button id="game5" type="button" class="btn btn-primary">Attack Game 5</button>
+        <button id="game6" type="button" class="btn btn-primary">Attack Game 6</button>
+        <button id="game7" type="button" class="btn btn-primary">Attack Game 7</button>
     </div>
-    <br>
-</form>
 
-<script>
-    var captchaId = "647f5ed2ed8acb4be36784e01556bb71"   // gt_id
-    var product = "float"
-        if (product !== 'bind') {
-        $('#btn').remove();
-    }
-
-    initGeetest4({
-        captchaId: captchaId,
-        product: product,
-    }, function (gt) {
-        window.gt = gt
-        gt
-            .appendTo("#captcha")
-            .onSuccess(function (e) {
-                var result = gt.getValidate();
+    <script>
+        function uuidv4() {
+            return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+                (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+            );
+        }
+        var button = $("button");
+        let userId = uuidv4()
+        let gameId = null;
+        initGeetest4({
+            captchaId: '54088bb07d2df3c46b79f80300b0abbe',
+            product: 'bind',
+            // riskType配合风控融合模式，如果您的id是其他模式此参数可省略
+            riskType: 'icon'
+        }, function (captcha) {
+            // captcha为验证码实例
+            captcha.onReady(function () {
+                //验证码ready之后才能调用verify方法显示验证码
+            }).onSuccess(function () {
+                var result = captcha.getValidate();
+                if (!result) {
+                    return alert('请完成验证');
+                }
+                result.captcha_id = "54088bb07d2df3c46b79f80300b0abbe"
+                result.gameId = gameId
+                //your code
                 $.ajax({
-                    url: '/login',
-                    data: result,
+                    url: 'attack',
+                    type: 'post',
                     dataType: 'json',
-                    success: function (res) {
-                        console.log(res.result);
+                    data: result,
+                    headers: {
+                        userId: userId
+                    },
+                    success: function (data) {
+                        if (data.result === 'success') {
+                                alert('Attack is processing');
+                        } else if (data.result === 'fail') {
+                                alert(data.message);
+                                captcha.reset();
+                        }
                     }
-                })
+                });
+            }).onError(function () {
+                //your code
             })
+            for (let i = 0; i < button.length; i++) {
+                button[i].onclick = function () {
+                    gameId = i;
+                    // some code
+                    // 检测验证码是否ready, 验证码的onReady是否执行
+                    captcha.showBox(); //显示验证码
+                    // some code
+                }
+            }
+        });
 
-        $('#btn').click(function () {
-            gt.showBox();
-        })
-        $('#reset_btn').click(function () {
-            gt.reset();
-        })
-    });
-
-</script>
-<script></script>
+    </script>
+    <script></script>
 </body>
+
 </html>
