@@ -13,6 +13,20 @@ router.get('/', function (req, res, next) {
 router.post('/attack', express.json(), async function (req, res, next) {
   const { gameId, lot_number, captcha_output, pass_token, gen_time } = req.body;
   const { userid } = req.headers;
+  //check gameid in redis cache
+  let currentValue = await redisUtil.getValue(`game${gameId}`);
+  if (currentValue && currentValue === userid) {
+    return res.status(200).send({
+      result: "success"
+    })
+  }
+  else if (currentValue && currentValue !== userid) {
+    return res.status(200).send({
+      result: "fail",
+      message: "Game has been attacked"
+    })
+  }
+
   const isValidate = await validateCaptcha(lot_number, captcha_output, pass_token, gen_time);
   if (!isValidate) {
     return res.status(200).send({
@@ -21,8 +35,7 @@ router.post('/attack', express.json(), async function (req, res, next) {
     })
   }
   await redisUtil.setValue(`game${gameId}`, userid);
-  const currentValue = await redisUtil.getValue(`game${gameId}`);
-  console.log(currentValue, userid)
+  currentValue = await redisUtil.getValue(`game${gameId}`);
   if (currentValue !== userid) {
     res.status(200).send({
       result: "fail",

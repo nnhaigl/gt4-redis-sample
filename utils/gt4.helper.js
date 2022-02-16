@@ -13,15 +13,12 @@ const post_form = async (datas, url) => {
     var result = await axios(options);
 
     if (result.status != 200) {
-        // geetest服务响应异常
-        console.log('服务响应异常, statusCode:' + result.status);
         throw new Error('Geetest Response Error')
     }
     return result.data;
 }
 
 const hmac_sha256_encode = (value, key) => {
-    console.log(value, key)
     var hash = crypto.createHmac("sha256", key)
         .update(value, 'utf8')
         .digest('hex');
