@@ -4,7 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-const redisUtil = require("./utils/redis.helper");
+// const redisUtil = require("./utils/redis.helper");
 
 var indexRouter = require('./routes/index');
 
@@ -24,7 +24,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 module.exports = {
   init: async () => {
 
-    await redisUtil.init();
+    // await redisUtil.init();
     app.use('/', indexRouter);
 
     // catch 404 and forward to error handler

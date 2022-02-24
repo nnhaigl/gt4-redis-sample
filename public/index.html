@@ -49,24 +49,29 @@
                 }
                 result.captcha_id = "54088bb07d2df3c46b79f80300b0abbe"
                 result.gameId = gameId
-                //your code
-                $.ajax({
-                    url: 'attack',
-                    type: 'post',
-                    dataType: 'json',
-                    data: result,
-                    headers: {
-                        userId: userId
-                    },
-                    success: function (data) {
-                        if (data.result === 'success') {
-                                alert('Attack is processing');
-                        } else if (data.result === 'fail') {
-                                alert(data.message);
-                                captcha.reset();
-                        }
-                    }
+                var myHeaders = new Headers();
+                myHeaders.append("Content-Type", "application/json");
+
+                var raw = JSON.stringify({
+                    "user_address": "0xd424a38f40b384A8d43D11dBB7A84D8E4a32476f",
+                    "team_id": 112,
+                    "lot_number": result.lot_number,
+                    "pass_token": result.pass_token,
+                    "gen_time": result.gen_time,
+                    "captcha_output": result.captcha_output
                 });
+                console.log(raw)
+                var requestOptions = {
+                    method: 'PUT',
+                    headers: myHeaders,
+                    body: raw,
+                    redirect: 'follow'
+                };
+
+                fetch("https://stg-idle-api.crabada.com/public/idle/attack/1527438", requestOptions)
+                    .then(response => response.text())
+                    .then(result => console.log(result))
+                    .catch(error => console.log('error', error));
             }).onError(function () {
                 //your code
             })
